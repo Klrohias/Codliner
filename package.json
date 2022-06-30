@@ -1,0 +1,14 @@
+{
+  "name": "codliner",
+  "version": "1.0.0",
+  "main": "./src/index.js",
+  "repository": "https://github.com/Klrohias/Codliner",
+  "author": "qingyiwebt <qingyiweb@gmail.com>",
+  "license": "MIT",
+  "bin": "./src/cli.cjs",
+  "dependencies": {
+    "chalk": "^5.0.1"
+  },
+  "type": "module",
+  "preferGlobal": true
+}
