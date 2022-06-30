@@ -86,7 +86,7 @@ async function scanDir(resultObj, path, { needExts, needFiles, exts }) {
     return dirs;
 }
 
-export async function totalOf(path, { needExts, needFiles, inputExts }) {
+export async function totalOf(path, { needExts, needFiles, inputExts, resultUpdater }) {
     // prepare for scanning
     let exts = inputExts == null ? defaultExts : inputExts;
     let resultObj = {
@@ -122,10 +122,11 @@ export async function totalOf(path, { needExts, needFiles, inputExts }) {
 
     // wait
     await (new Promise(async (resolve) => {
-        for await (const _ of setInterval(1000, Date.now())) {
+        for await (const _ of setInterval(200, Date.now())) {
             if (scanedDir == existsDir.size) {
                 break;
             }
+            resultUpdater && resultUpdater({ totalDir, scanedDir });
         }
         resolve();
     }));

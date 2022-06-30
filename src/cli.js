@@ -1,7 +1,7 @@
 import process from 'process';
 import chalk from 'chalk';
 import * as codliner from './index.js';
-
+import * as progress from 'cli-progress';
 (async function (args) {
     function printHelp() {
         console.log(
@@ -51,6 +51,13 @@ Options:
     // start work
     let tasks = [];
     for (const path of projectPaths) {
+        const progressBar = new progress.SingleBar({
+            format: 'Scanning for ' + chalk.underline.blueBright(path) + ' || ' + chalk.grey('{bar}') + ' || {percentage}% ({value} / {total})',
+            barCompleteChar: '\u2588',
+            barIncompleteChar: '\u2591',
+        }, progress.Presets.shades_classic);
+
+        progressBar.start(100, 0);
         tasks.push(codliner.totalOf(path, {
             ...(function () {
                 switch (verboseLevel) {
@@ -63,13 +70,14 @@ Options:
                 if (customExts != null)
                     return { inputExts: customExts.split(',') };
                 else return {};
-            })()
-        }));
-    }
-
-    // show result
-    for (const task of tasks) {
-        task.then(result => {
+            })(),
+            resultUpdater: function ({ totalDir, scanedDir }) {
+                progressBar.setTotal(totalDir);
+                progressBar.update(scanedDir);
+            }
+        }).then(result => {
+            progressBar.update(0xffffffff);
+            progressBar.stop();
             let report = '';
             report += ' --- Report for path: ' + result.path + '\n\n';
 
@@ -109,7 +117,7 @@ Options:
                 + `, FILES: ${chalk.red.bold.underline(result.fileCount)}\n`;
             report += '\n';
             console.log(report);
-        });
+        }));
     }
     await Promise.all(tasks);
 })(process.argv.slice(2)); // get the real args
