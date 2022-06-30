@@ -49,7 +49,7 @@ async function scanFile(resultObj, filePath, { needExts, needFiles, ext }) {
     resultObj.total += totalLines;
     resultObj.fileCount++;
 }
-async function scanDir(resultObj, path, { needExts, needFiles }) {
+async function scanDir(resultObj, path, { needExts, needFiles, exts }) {
     let files = await fsP.readdir(path);
     let dirs = [];
     let scanTasks = [];
@@ -63,7 +63,7 @@ async function scanDir(resultObj, path, { needExts, needFiles }) {
         }
         if (stat.isFile()) {
             let matchExt = '.???';
-            if (defaultExts.some(ext => childPath.endsWith(ext) ? function () {
+            if ((exts || defaultExts).some(ext => childPath.endsWith(ext) ? function () {
                 matchExt = ext;
                 return true;
             }() : false)) {
@@ -86,7 +86,7 @@ async function scanDir(resultObj, path, { needExts, needFiles }) {
     return dirs;
 }
 
-export async function totalOf(path, { needExts, needFiles }, inputExts = null) {
+export async function totalOf(path, { needExts, needFiles, inputExts }) {
     // prepare for scanning
     let exts = inputExts == null ? defaultExts : inputExts;
     let resultObj = {

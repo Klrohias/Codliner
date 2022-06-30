@@ -10,8 +10,9 @@ Codliner - A tools to help count lines of your code.
 
 Usage: codliner (...paths to your project) [...options]
 Options:
-    -v\t\tPrint the number of lines for each language in your project
-    -vv\t\tPrint the number of lines in each code file in your project
+    -v\t\t\tPrint the number of lines for each language in your project
+    -vv\t\t\tPrint the number of lines in each code file in your project
+    -e (.ext,.ext...)\t\tUse custom extension names
 `
         );
     }
@@ -24,12 +25,25 @@ Options:
 
     let verboseLevel = 0;
     let projectPaths = [];
+    let customExts = null;
+    let currentArg = '';
     for (const arg of args) {
         switch (arg) {
             case '-v': { verboseLevel = 1; break; }
             case '-vv': { verboseLevel = 2; break; }
+            case '-e': { currentArg = '-e'; break; }
             default: {
-                projectPaths.push(arg);
+                switch (currentArg) {
+                    case '-e': {
+                        customExts = arg; currentArg = '';
+                        break;
+                    }
+                    default: {
+                        projectPaths.push(arg);
+                        break;
+                    }
+                }
+                break;
             }
         }
     }
@@ -44,6 +58,11 @@ Options:
                     case 2: return { needFiles: true };
                     default: return {};
                 }
+            })(),
+            ...(function () {
+                if (customExts != null)
+                    return { inputExts: customExts.split(',') };
+                else return {};
             })()
         }));
     }
